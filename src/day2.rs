@@ -47,10 +47,10 @@ pub fn run_program(intcode: &mut Vec<i32>) -> i32 {
 
 #[cfg(test)]
 mod tests {
-    use super::part1;
+    use super::run_program;
 
     #[test]
     fn sample1() {
-        assert_eq!(part1(&vec![1,9,10,3,2,3,11,0,99,30,40,50]), 3500);
+        assert_eq!(run_program(&mut vec![1,9,10,3,2,3,11,0,99,30,40,50]), 3500);
     }
 }
