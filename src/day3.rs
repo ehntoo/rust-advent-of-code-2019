@@ -11,6 +11,12 @@ pub struct Point {
     y: i32
 }
 
+#[derive(Eq, PartialEq, Hash, Copy, Clone)]
+pub struct Collision {
+    point: Point,
+    steps: i32
+}
+
 pub fn advance_position(point: &Point, dir: &str) -> Point {
     match dir {
         "U" => Point {x: point.x, y: point.y+1},
@@ -21,43 +27,57 @@ pub fn advance_position(point: &Point, dir: &str) -> Point {
     }
 }
 
-pub fn check_collisions(colliding_point: Point, path: &Vec<String>) -> bool {
+pub fn check_collisions(colliding_point: Point, path: &Vec<String>) -> i32 {
     let mut current_point = Point {x: 0, y: 0};
+    let mut steps = 0;
     for motion in path {
         let direction = &motion[0..1];
         let distance: i32 = motion[1..].parse().unwrap();
         for _ in 0..distance {
+            steps += 1;
             current_point = advance_position(&current_point, direction);
             if current_point == colliding_point {
-                return true;
+                return steps;
             }
         }
     }
-    return false;
+    return -1;
+}
+
+pub fn collide_paths(path_one: &Vec<String>, path_two: &Vec<String>) -> HashSet<Collision> {
+    let mut coord_one = Point {x: 0, y: 0};
+    let mut collisions = HashSet::new();
+    let mut steps = 0;
+    for motion in path_one {
+        let direction = &motion[0..1];
+        let distance: i32 = motion[1..].parse().unwrap();
+        for _ in 0..distance {
+            steps += 1;
+            coord_one = advance_position(&coord_one, direction);
+            let collision_steps = check_collisions(coord_one, path_two);
+            if collision_steps > 0{
+                collisions.insert(Collision {point: coord_one, steps: steps + collision_steps});
+            }
+        }
+    }
+    collisions
 }
 
 #[aoc(day3, part1)]
 pub fn part1(moves: &Vec<Vec<String>>) -> i32 {
     let path_one = &moves[0];
     let path_two = &moves[1];
-    let mut coord_one = Point {x: 0, y: 0};
-    let mut collisions = HashSet::new();
-    for motion in path_one {
-        let direction = &motion[0..1];
-        let distance: i32 = motion[1..].parse().unwrap();
-        for _ in 0..distance {
-            coord_one = advance_position(&coord_one, direction);
-            if check_collisions(coord_one, path_two) {
-                collisions.insert(coord_one);
-            }
-        }
-    }
-    collisions.iter().map(|p| p.x.abs() + p.y.abs()).min().unwrap()
+    let collisions = collide_paths(path_one, path_two);
+    collisions.iter().map(|c| c.point.x.abs() + c.point.y.abs()).min().unwrap()
 }
 
 #[aoc(day3, part2)]
-pub fn part2(_moves: &Vec<Vec<String>>) -> i32 {
-    0
+pub fn part2(moves: &Vec<Vec<String>>) -> i32 {
+    let path_one = &moves[0];
+    let path_two = &moves[1];
+    let collisions = collide_paths(path_one, path_two);
+    // collisions.iter().map(|c| c.point.x.abs() + c.point.y.abs()).min().unwrap()
+    collisions.iter().min_by_key(|c| c.steps).unwrap().steps
 }
 
 #[cfg(test)]
