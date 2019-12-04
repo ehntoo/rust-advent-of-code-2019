@@ -71,7 +71,7 @@ pub fn part2(number_bounds: &[i32]) -> i32 {
 
 #[cfg(test)]
 mod tests {
-    use super::{is_increasing, has_double_number};
+    use super::{is_increasing, has_double_number, has_exclusive_double_number};
 
     #[test]
     fn is_increasing_test() {
