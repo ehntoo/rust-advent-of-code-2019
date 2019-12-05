@@ -21,29 +21,39 @@ pub fn run_program(intcode: &mut Vec<i32>, input: i32) -> i32 {
         let opcode = intcode[pc] % 100;
         let arg1_mode = (intcode[pc] / 100) % 10;
         let arg2_mode = (intcode[pc] / 1000) % 10;
-        let raw_arg_1 = intcode[pc+1];
-        let decode_arg1 = || decode_arg(arg1_mode, pc+1, intcode);
-        let decode_arg2 = || decode_arg(arg2_mode, pc+2, intcode);
+        let arg1 = || decode_arg(arg1_mode, pc+1, intcode);
+        let arg2 = || decode_arg(arg2_mode, pc+2, intcode);
         match opcode {
             1 => {
                 let dst = intcode[pc+3] as usize;
-                intcode[dst] = decode_arg1() + decode_arg2(); pc += 4
+                intcode[dst] = arg1() + arg2();
+                pc += 4
             },
             2 => {
                 let dst = intcode[pc+3] as usize;
-                intcode[dst] = decode_arg1() * decode_arg2(); pc += 4
+                intcode[dst] = arg1() * arg2();
+                pc += 4
             },
-            3 => {intcode[raw_arg_1 as usize] = input; pc += 2},
-            4 => {write_int(decode_arg1()); pc += 2},
-            5 => pc = if decode_arg1() != 0 { decode_arg2() as usize} else { pc + 3 },
-            6 => pc = if decode_arg1() == 0 { decode_arg2() as usize} else { pc + 3 },
+            3 => {
+                let dst = intcode[pc+1] as usize;
+                intcode[dst] = input;
+                pc += 2
+            },
+            4 => {
+                write_int(arg1());
+                pc += 2
+            },
+            5 => pc = if arg1() != 0 { arg2() as usize} else { pc + 3 },
+            6 => pc = if arg1() == 0 { arg2() as usize} else { pc + 3 },
             7 => {
                 let dst = intcode[pc+3] as usize;
-                intcode[dst] = if decode_arg1() < decode_arg2() {1} else {0}; pc += 4
+                intcode[dst] = if arg1() < arg2() {1} else {0};
+                pc += 4
             },
             8 => {
                 let dst = intcode[pc+3] as usize;
-                intcode[dst] = if decode_arg1() == decode_arg2() {1} else {0}; pc += 4
+                intcode[dst] = if arg1() == arg2() {1} else {0};
+                pc += 4
             },
             _ => break,
         };
