@@ -62,37 +62,3 @@ pub fn part2(program: &[i32]) -> i32 {
     let mut local_program = program.to_vec();
     run_program(&mut local_program, 5)
 }
-
-#[cfg(test)]
-mod tests {
-    use super::{is_increasing, has_double_number, has_exclusive_double_number};
-
-    #[test]
-    fn is_increasing_test() {
-        assert_eq!(is_increasing(123456), true);
-        assert_eq!(is_increasing(111111), true);
-        assert_eq!(is_increasing(111110), false);
-        assert_eq!(is_increasing(211111), false);
-    }
-
-    #[test]
-    fn double_nonexclusive_test() {
-        assert_eq!(has_double_number(111111), true);
-        assert_eq!(has_double_number(112345), true);
-        assert_eq!(has_double_number(123455), true);
-        assert_eq!(has_double_number(122345), true);
-        assert_eq!(has_double_number(123456), false);
-    }
-
-    #[test]
-    fn double_exclusive_test() {
-        assert_eq!(has_exclusive_double_number(111111), false);
-        assert_eq!(has_exclusive_double_number(112345), true);
-        assert_eq!(has_exclusive_double_number(123455), true);
-        assert_eq!(has_exclusive_double_number(122345), true);
-        assert_eq!(has_exclusive_double_number(123456), false);
-        assert_eq!(has_exclusive_double_number(113455), true);
-        assert_eq!(has_exclusive_double_number(111455), true);
-        assert_eq!(has_exclusive_double_number(111555), false);
-    }
-}
