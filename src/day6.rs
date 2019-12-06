@@ -33,7 +33,29 @@ pub fn part1(orbit_catalog: &[Orbit]) -> i32 {
     total_orbits
 }
 
+fn find_path_to_com<'a>(orbit: &'a Orbit, orbit_catalog: &'a [Orbit]) -> Vec<&'a Orbit> {
+    let mut orbital_path = vec![orbit];
+    let mut next_orbit = orbit_catalog.iter().find(|o| o.satellite == orbit.body).unwrap();
+    while next_orbit.body != "COM" {
+        orbital_path.push(next_orbit);
+        next_orbit = orbit_catalog.iter().find(|o| o.satellite == next_orbit.body).unwrap();
+    }
+    orbital_path
+}
+
 #[aoc(day6, part2)]
-pub fn part2(_orbit_catalog: &[Orbit]) -> i32 {
-    0
+pub fn part2(orbit_catalog: &[Orbit]) -> i32 {
+    let my_orbit = orbit_catalog.iter().find(|o| o.satellite == "YOU").unwrap();
+    let santa_orbit = orbit_catalog.iter().find(|o| o.satellite == "SAN").unwrap();
+
+    let my_path = find_path_to_com(my_orbit, orbit_catalog);
+    let santa_path = find_path_to_com(santa_orbit, orbit_catalog);
+
+    for (my_i, e) in my_path.iter().enumerate() {
+        match santa_path.iter().position(|o| o.body == e.body) {
+            Some(santa_i) => return (my_i + santa_i) as i32,
+            _ => ()
+        }
+    }
+    -1
 }
