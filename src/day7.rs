@@ -80,19 +80,18 @@ pub fn part1(program: &[i32]) -> i32 {
                 halted: false,
             }
         }).collect();
-        run_program(&mut amplifier_computers[0], perm[0]);
+        for (c, p) in amplifier_computers.iter_mut().zip(perm) {
+            run_program(c, p);
+        }
+
         run_program(&mut amplifier_computers[0], 0);
         let out = run_program(&mut amplifier_computers[0], 0);
-        run_program(&mut amplifier_computers[1], perm[1]);
         run_program(&mut amplifier_computers[1], out);
         let out = run_program(&mut amplifier_computers[1], out);
-        run_program(&mut amplifier_computers[2], perm[2]);
         run_program(&mut amplifier_computers[2], out);
         let out = run_program(&mut amplifier_computers[2], out);
-        run_program(&mut amplifier_computers[3], perm[3]);
         run_program(&mut amplifier_computers[3], out);
         let out = run_program(&mut amplifier_computers[3], out);
-        run_program(&mut amplifier_computers[4], perm[4]);
         run_program(&mut amplifier_computers[4], out);
         let out = run_program(&mut amplifier_computers[4], out);
         if out > max_output {
@@ -103,24 +102,42 @@ pub fn part1(program: &[i32]) -> i32 {
 }
 
 #[aoc(day7, part2)]
-pub fn part2(_program: &[i32]) -> i32 {
-    // let mut max_output = 0;
-    // for perm in (5..10).permutations(5) {
-    //     let mut amplifier_computers: Vec<IntCodeComputerState> = (0..5).map(|_| {
-    //         IntCodeComputerState {
-    //             prog: program.to_vec(),
-    //             pc: 0,
-    //         }
-    //     }).collect();
-    //     let out = run_program(&mut amplifier_computers[0], &vec![perm[0], 0]);
-    //     let out = run_program(&mut amplifier_computers[1], &vec![perm[1], out[0]]);
-    //     let out = run_program(&mut amplifier_computers[2], &vec![perm[2], out[0]]);
-    //     let out = run_program(&mut amplifier_computers[3], &vec![perm[3], out[0]]);
-    //     let out = run_program(&mut amplifier_computers[4], &vec![perm[4], out[0]]);
-    //     if out[0] > max_output {
-    //         max_output = out[0];
-    //     }
-    // }
-    // max_output
-    0
+pub fn part2(program: &[i32]) -> i32 {
+    let mut max_output = 0;
+    for perm in (5..10).permutations(5) {
+        let mut amplifier_computers: Vec<IntCodeComputerState> = (0..5).map(|_| {
+            IntCodeComputerState {
+                prog: program.to_vec(),
+                pc: 0,
+                halted: false,
+            }
+        }).collect();
+        for (c, p) in amplifier_computers.iter_mut().zip(perm) {
+            run_program(c, p);
+        }
+
+        let mut last_feedback = -1;
+        let mut next_feedback = 0;
+        let mut greatest_feedback = 0;
+        while last_feedback != next_feedback {
+            last_feedback = next_feedback;
+            run_program(&mut amplifier_computers[0], next_feedback);
+            let out = run_program(&mut amplifier_computers[0], 0);
+            run_program(&mut amplifier_computers[1], out);
+            let out = run_program(&mut amplifier_computers[1], out);
+            run_program(&mut amplifier_computers[2], out);
+            let out = run_program(&mut amplifier_computers[2], out);
+            run_program(&mut amplifier_computers[3], out);
+            let out = run_program(&mut amplifier_computers[3], out);
+            run_program(&mut amplifier_computers[4], out);
+            next_feedback = run_program(&mut amplifier_computers[4], out);
+            if next_feedback > greatest_feedback {
+                greatest_feedback = next_feedback;
+            }
+        }
+        if greatest_feedback > max_output {
+            max_output = greatest_feedback;
+        }
+    }
+    max_output
 }
