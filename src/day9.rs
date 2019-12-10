@@ -7,12 +7,7 @@ pub fn input_generator(input: &str) -> Vec<i64> {
 }
 
 pub fn decode_arg(mode: i64, pc: usize, state: &IntCodeComputerState) -> i64 {
-    match mode {
-        0 => state.prog[state.prog[pc] as usize],
-        1 => state.prog[pc],
-        2 => state.prog[(state.prog[pc] + state.rel_base) as usize],
-        _ => -1
-    }
+    state.prog[decode_dst(mode, pc, state)]
 }
 
 pub fn decode_dst(mode: i64, pc: usize, state: &IntCodeComputerState) -> usize {
@@ -55,7 +50,7 @@ pub fn run_program(state: &mut IntCodeComputerState, input: i64) -> i64 {
         let arg3_mode = || ((instruction / 10000) % 10);
         let arg1 = || decode_arg(arg1_mode(), state.pc+1, &state);
         let arg2 = || decode_arg(arg2_mode(), state.pc+2, &state);
-        let arg3 = || decode_arg(arg3_mode(), state.pc+3, &state);
+        // let arg3 = || decode_arg(arg3_mode(), state.pc+3, &state);
         // println!("Executing pc {}, instruction {}, opcode {:?}, mode1 {}, mode2 {}, mode3 {}, raw_arg1 {}, raw_arg2 {}, raw_arg3 {}, arg1 {}, arg2 {}, arg3 {}, rel {}",
         //     state.pc, instruction, Opcode::from_i64(opcode).unwrap(), arg1_mode(), arg2_mode(), arg3_mode(),
         //     state.prog[state.pc+1], state.prog[state.pc+2], state.prog[state.pc+3], 
